@@ -34,6 +34,7 @@ def isFloat(string):
     except ValueError:  # if string is not a number
         return False
 
+
 # Returns the type of lineItems
 
 
@@ -41,7 +42,8 @@ def validateLineItem(lineItems):
     if len(lineItems) == 7:
         if lineItems[0] == "Date":
             return TYPE_LINE_HEADER
-        elif checkDate(lineItems[0]) and isFloat(lineItems[1]) and isFloat(lineItems[2]) and isFloat(lineItems[3]) and isFloat(lineItems[4]) and isFloat(lineItems[5]):
+        elif checkDate(lineItems[0]) and isFloat(lineItems[1]) and isFloat(lineItems[2]) and isFloat(
+                lineItems[3]) and isFloat(lineItems[4]) and isFloat(lineItems[5]):
             return TYPE_LINE_DATA
     return TYPE_LINE_UNDEFINED
 
@@ -59,8 +61,9 @@ def parseDataLine(lineItems):
             'high': high,
             'low': low,
             'close': closePrice,
-            'adjClose' : adjustedClose,
+            'adjClose': adjustedClose,
             'volume': volume}
+
 
 def is_number(s):
     try:
@@ -68,6 +71,7 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
 
 class InstrumentsFromFile():
     def __init__(self, fileName, instrumentId):
@@ -107,9 +111,11 @@ class InstrumentsFromFile():
 
 
 class YahooStockDataSource(DataSource):
-    def __init__(self, cachedFolderName, dataSetId, instrumentIds, startDateStr, endDateStr, event='history', adjustPrice=False, downloadId=".NS", liveUpdates=True, pad=True):
+    def __init__(self, cachedFolderName, dataSetId, instrumentIds, startDateStr, endDateStr, event='history',
+                 adjustPrice=False, downloadId=".NS", liveUpdates=True, pad=True):
         super(YahooStockDataSource, self).__init__(cachedFolderName, dataSetId, instrumentIds, startDateStr, endDateStr)
-        self.__dateAppend = "_%sto%s"%(datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'),datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'))
+        self.__dateAppend = "_%sto%s" % (datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'),
+                                         datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'))
         self.__downloadId = downloadId
         self.__bookDataByFeature = {}
         self.__adjustPrice = adjustPrice
@@ -126,14 +132,14 @@ class YahooStockDataSource(DataSource):
             self.filterUpdatesByDates([(startDateStr, endDateStr)])
 
     def getFileName(self, instrumentId):
-        return self._cachedFolderName + self._dataSetId + '/' + instrumentId + '%s.csv'%self.__dateAppend
+        return self._cachedFolderName + self._dataSetId + '/' + instrumentId + '%s.csv' % self.__dateAppend
 
     def downloadAndAdjustData(self, instrumentId, fileName):
         if not os.path.isfile(fileName):
             if not downloadFileFromYahoo(self._startDate, self._endDate, instrumentId, fileName):
                 logError('Skipping %s:' % (instrumentId))
                 return False
-            if(self.__adjustPrice):
+            if (self.__adjustPrice):
                 self.adjustPriceForSplitAndDiv(instrumentId, fileName)
         return True
 
@@ -147,7 +153,7 @@ class YahooStockDataSource(DataSource):
         for timeOfUpdate, instrumentUpdates in self._groupedInstrumentUpdates:
             idx = idx + 1.0
             if (idx / len(timeUpdates)) > limits[currentLimitIdx]:
-                print ('%d%% done...' % (limits[currentLimitIdx] * 100))
+                print('%d%% done...' % (limits[currentLimitIdx] * 100))
                 currentLimitIdx = currentLimitIdx + 1
             for instrumentUpdate in instrumentUpdates:
                 bookData = instrumentUpdate.getBookData()
@@ -156,16 +162,17 @@ class YahooStockDataSource(DataSource):
                     if featureKey not in self.__bookDataByFeature:
                         self.__bookDataByFeature[featureKey] = pd.DataFrame(columns=self._instrumentIds,
                                                                             index=timeUpdates)
-                    self.__bookDataByFeature[featureKey].at[timeOfUpdate, instrumentUpdate.getInstrumentId()] = bookData[featureKey]
+                    self.__bookDataByFeature[featureKey].at[timeOfUpdate, instrumentUpdate.getInstrumentId()] = \
+                    bookData[featureKey]
         for featureKey in self.__bookDataByFeature:
             self.__bookDataByFeature[featureKey].fillna(method='pad', inplace=True)
 
     def getInstrumentUpdateFromRow(self, instrumentId, row):
-        bookData =  {'open': float(row['Open']),
+        bookData = {'open': float(row['Open']),
                     'high': float(row['High']),
                     'low': float(row['Low']),
                     'close': float(row['Close']),
-                    'adjClose' : float(row['Adj Close']),
+                    'adjClose': float(row['Adj Close']),
                     'volume': float(row['Volume'])}
 
         timeOfUpdate = datetime.strptime(row['Date'], '%Y-%m-%d')
@@ -182,7 +189,7 @@ class YahooStockDataSource(DataSource):
         return self._allTimes[-1]
 
     def adjustPriceForSplitAndDiv(self, instrumentId, fileName):
-        multiplier = data_source_utils.getMultipliers(self,instrumentId,fileName,self.__downloadId)
+        multiplier = data_source_utils.getMultipliers(self, instrumentId, fileName, self.__downloadId)
         temp['close'] = temp['close'] * multiplier[0] * multiplier[1]
         temp['open'] = temp['open'] * multiplier[0] * multiplier[1]
         temp['high'] = temp['high'] * multiplier[0] * multiplier[1]
@@ -193,15 +200,16 @@ class YahooStockDataSource(DataSource):
 
 
 if __name__ == "__main__":
+
     instrumentIds = ['IBM', 'AAPL']
     startDateStr = '2013/05/10'
     endDateStr = '2017/06/09'
     yds = YahooStockDataSource(cachedFolderName='yahooData/',
-                                     dataSetId="testTrading",
-                                     instrumentIds=instrumentIds,
-                                     startDateStr=startDateStr,
-                                     endDateStr=endDateStr,
-                                     event='history',
-                                     liveUpdates=False)
+                               dataSetId="testTrading",
+                               instrumentIds=instrumentIds,
+                               startDateStr=startDateStr,
+                               endDateStr=endDateStr,
+                               event='history',
+                               liveUpdates=False)
     print(next(yds.emitAllInstrumentUpdates()['IBM'].getBookDataChunk(100)))
     print(yds.getBookDataFeatures())

@@ -61,7 +61,8 @@ def validateLineItem(lineItems, lineLength):
             return TYPE_LINE_HEADER
         elif checkDate(lineItems[0]) and isFloat(lineItems[2]) and isFloat(lineItems[3]) and isFloat(lineItems[4]) and isFloat(lineItems[5]) and isFloat(lineItems[6]):
             return TYPE_LINE_DATA
-            # Date,Prev Close,Open,High,Low,Last,Close,Average,Total Traded Quantity,Turnover,No. of Trades,Deliverable Qty,% Dly Qt to Traded Qty
+            # Date,Prev Close,Open,High,Low,Last,Close,Average,Total Traded Quantity,Turnover,No. of Trades,
+            # Deliverable Qty,% Dly Qt to Traded Qty
     print(len(lineItems), lineLength, checkDate(lineItems[0]))
     logInfo('Bad Line')
     return TYPE_LINE_UNDEFINED
@@ -130,7 +131,7 @@ class InstrumentsFromFile():
 class NSEStockDataSource(DataSource):
     def __init__(self, cachedFolderName, dataSetId, instrumentIds, startDateStr, endDateStr, adjustPrice=False, downloadId = ".NS", liveUpdates=True, pad=True):
         super(NSEStockDataSource, self).__init__(cachedFolderName, dataSetId, instrumentIds, startDateStr, endDateStr)
-        self.__dateAppend = "_%sto%s"%(datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'),datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'))
+        self.__dateAppend = "_%sto%s"%(datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'), datetime.strptime(startDateStr, '%Y/%m/%d').strftime('%Y-%m-%d'))
         self.__downloadId = downloadId
         self.__bookDataByFeature = {}
         self.__adjustPrice = adjustPrice

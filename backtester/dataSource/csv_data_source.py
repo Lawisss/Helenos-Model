@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 import csv
 from backtester.logger import *
+
 try:
     from urllib2 import urlopen
 except ImportError:
@@ -19,7 +20,8 @@ def is_number(s):
 
 
 class CsvDataSource(DataSource):
-    def __init__(self, cachedFolderName, dataSetId, instrumentIds, downloadUrl = None, timeKey = None, timeStringFormat = None, startDateStr=None, endDateStr=None, liveUpdates=True, pad=True):
+    def __init__(self, cachedFolderName, dataSetId, instrumentIds, downloadUrl=None, timeKey=None,
+                 timeStringFormat=None, startDateStr=None, endDateStr=None, liveUpdates=True, pad=True):
         self._cachedFolderName = cachedFolderName
         self._dataSetId = dataSetId
         self._downloadUrl = downloadUrl
